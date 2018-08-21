@@ -10,16 +10,15 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
-/**
- * Created by iuliana.cosmina on 2/7/16.
- */
 @Entity
 @Table(name="P_REQUEST")
 public class Request extends AbstractEntity {
+
+    // TODO вынести в util
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd"));
+
     @ManyToOne
     @JoinColumn(name = "USER_ID", nullable = false)
     private User user;
@@ -58,11 +57,6 @@ public class Request extends AbstractEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "request", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<Response> responses = new HashSet<>();
-
-    //required by JPA
-    public Request() {
-        super();
-    }
 
     public User getUser() {
         return user;
@@ -130,36 +124,34 @@ public class Request extends AbstractEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
 
-        Request request = (Request) o;
-
-        if (user != null ? !user.getId().equals(request.user.getId()) : request.user != null) return false;
-        if (startAt != null ? !startAt.equals(request.startAt) : request.startAt != null) return false;
-        if (endAt != null ? !endAt.equals(request.endAt) : request.endAt != null) return false;
-        if (requestStatus != request.requestStatus) return false;
-        return pets != null ? pets.equals(request.pets) : request.pets == null;
-
+        Request that = (Request) other;
+        if (user != null ? !user.getId().equals(that.user.getId()) : that.user != null) {
+            return false;
+        }
+        return Objects.equals(startAt, that.startAt)
+            && Objects.equals(endAt, that.endAt)
+            && Objects.equals(requestStatus, that.requestStatus)
+            && Objects.equals(pets, that.pets);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (user != null ? user.hashCode() : 0);
-        result = 31 * result + (startAt != null ? startAt.hashCode() : 0);
-        result = 31 * result + (endAt != null ? endAt.hashCode() : 0);
-        result = 31 * result + (requestStatus != null ? requestStatus.hashCode() : 0);
-        result = 31 * result + (pets != null ? pets.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), user, startAt, endAt, requestStatus, pets);
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return String.format("Request[id='%,.2f', user='%s', startAt='%s', requestStatus='%s', requestStatus='%s']",
-                id, user == null ? "" : user.getId(), sdf.format(startAt), sdf.format(endAt), pets);
+        SimpleDateFormat dateFormatter = DATE_FORMATTER.get();
+        return String.format("Request[id='%d', user='%s', startAt='%s', requestStatus='%s', requestStatus='%s']",
+                             id,
+                             Optional.of(user).map(User::getId).map(Object::toString).orElse(""),
+                             dateFormatter.format(startAt),
+                             dateFormatter.format(endAt),
+                             pets);
     }
 }

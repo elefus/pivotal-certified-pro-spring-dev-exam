@@ -7,11 +7,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.text.SimpleDateFormat;
+import java.util.Objects;
+import java.util.Optional;
 
-/**
- * Created by iuliana.cosmina on 2/7/16.
- */
 @Entity
 @Table(name="P_RESPONSE")
 public class Response extends AbstractEntity {
@@ -31,11 +29,6 @@ public class Response extends AbstractEntity {
     @Size(max = 500)
     @NotEmpty
     private String details;
-
-    //required by JPA
-    public Response() {
-        super();
-    }
 
     public User getUser() {
         return user;
@@ -70,32 +63,32 @@ public class Response extends AbstractEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
 
-        Response response = (Response) o;
-
-        if (user != null ? !user.getId().equals(response.user.getId()) : response.user != null) return false;
-        if (request != null ? !request.getId().equals(response.request.getId()) : response.request != null) return false;
+        Response response = (Response) other;
+        if (user != null ? !user.getId().equals(response.user.getId()) : response.user != null) {
+            return false;
+        }
+        if (request != null ? !request.getId().equals(response.request.getId()) : response.request != null) {
+            return false;
+        }
         return responseStatus == response.responseStatus;
-
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (user != null ? user.hashCode() : 0);
-        result = 31 * result + (request != null ? request.hashCode() : 0);
-        result = 31 * result + (responseStatus != null ? responseStatus.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), user, request, responseStatus);
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return String.format("Request[id='%,.2f', user='%s', request='%s', responseStatus='%s']",
-                id, user == null ? "" : user.getId(), request == null ? "" : request.getId(), responseStatus);
+        return String.format("Request[id='%d', user='%s', request='%s', responseStatus='%s']",
+                             id,
+                             Optional.of(user).map(User::getId).map(Object::toString).orElse(""),
+                             Optional.of(request).map(Request::getId).map(Object::toString).orElse(""),
+                             responseStatus);
     }
 }

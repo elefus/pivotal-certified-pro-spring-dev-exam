@@ -1,11 +1,11 @@
 package com.ps.util;
 
-/**
- * Created by iuliana.cosmina on 2/22/16.
- */
+import java.util.Objects;
+
 public class Pair<X, Y> {
-    protected X x;
-    protected Y y;
+
+    private X x;
+    private Y y;
 
     private Pair(X x, Y y) {
         this.x = x;
@@ -29,16 +29,13 @@ public class Pair<X, Y> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
 
-        Pair pair = (Pair) o;
-
-        if (x != null ? !x.equals(pair.x) : pair.x != null) return false;
-        if (y != null ? !y.equals(pair.y) : pair.y != null) return false;
-
-        return true;
+        Pair that = (Pair) other;
+        return Objects.equals(x, that.x)
+            && Objects.equals(y, that.y);
     }
 
     @Override

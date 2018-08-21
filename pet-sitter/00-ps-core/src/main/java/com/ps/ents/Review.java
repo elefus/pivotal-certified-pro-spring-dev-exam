@@ -6,11 +6,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import java.text.SimpleDateFormat;
+import java.util.Objects;
 
-/**
- * Created by iuliana.cosmina on 2/7/16.
- */
 @Entity
 @Table(name="P_REVIEW")
 public class Review extends AbstractEntity {
@@ -28,11 +25,6 @@ public class Review extends AbstractEntity {
     @Size(max = 500)
     @NotEmpty
     private String details;
-
-    //required by JPA
-    public Review() {
-        super();
-    }
 
     public ReviewGrade getGrade() {
         return grade;
@@ -67,32 +59,32 @@ public class Review extends AbstractEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
 
-        Review review = (Review) o;
-
-        if (request != null ? !request.equals(review.request) : review.request != null) return false;
-        if (response != null ? !response.equals(review.response) : review.response != null) return false;
+        Review review = (Review) other;
+        if (request != null ? !request.equals(review.request) : review.request != null) {
+            return false;
+        }
+        if (response != null ? !response.equals(review.response) : review.response != null) {
+            return false;
+        }
         return grade == review.grade;
-
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (request != null ? request.hashCode() : 0);
-        result = 31 * result + (response != null ? response.hashCode() : 0);
-        result = 31 * result + (grade != null ? grade.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), request, response, grade);
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return String.format("Review[request_id='%,.2f', response_id='%,.2f', grade='%s', details='%s']",
-                request.getId(), response.getId(), grade.toString(), details);
+        return String.format("Review[request_id='%,d', response_id='%,d', grade='%s', details='%s']",
+                             request.getId(),
+                             response.getId(),
+                             grade.toString(),
+                             details);
     }
 }

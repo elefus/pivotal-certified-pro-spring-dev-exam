@@ -9,23 +9,20 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
-/**
- * Created by iuliana.cosmina on 2/7/16.
- */
 @Entity
 @Table(name="P_USER")
 @SequenceGenerator(name = "seqGen", allocationSize = 1)
 @NamedQueries({
         @NamedQuery(name=User.FIND_BY_USERNAME_EXACT, query = "from User u where username= :un"),
         @NamedQuery(name=User.FIND_BY_USERNAME_LIKE, query = "from User u where username like :un")
-
 })
 public class User extends AbstractEntity {
+
     public static final String FIND_BY_USERNAME_EXACT = "findByUsernameExact";
     public static final String FIND_BY_USERNAME_LIKE = "findByUsernameLike";
-
 
     /**
      * username = email
@@ -75,11 +72,6 @@ public class User extends AbstractEntity {
 
     @Column
     private boolean active;
-
-    //required by JPA
-    public User() {
-        super();
-    }
 
     public String getUsername() {
         return username;
@@ -193,32 +185,34 @@ public class User extends AbstractEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
 
-        User user = (User) o;
-
-        if (username != null ? !username.equals(user.username) : user.username != null) return false;
-        return userType == user.userType;
-
+        User that = (User) other;
+        return Objects.equals(username, that.username)
+            && Objects.equals(userType, that.userType);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (userType != null ? userType.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), username, userType);
     }
 
     @Override
     public String toString() {
+        // TODO использовать util.DateFormatter
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return super.toString() + ";" + String.format("User[username='%s', firstName='%s', lastName='%s', email='%s'" +
-                        " userType='%s', activeSince='%s', rating=id='%f%n']", getUsername(),
-                getFirstName(), getLastName(), getEmail(), getUserType().toString(),sdf.format(createdAt), rating);
+        return  String.format("%s; User[username='%s', firstName='%s', lastName='%s', email='%s' userType='%s', activeSince='%s', rating=id='%f%n']",
+                super.toString(),
+                getUsername(),
+                getFirstName(),
+                getLastName(),
+                getEmail(),
+                getUserType(),
+                sdf.format(createdAt),
+                rating);
 
     }
 }

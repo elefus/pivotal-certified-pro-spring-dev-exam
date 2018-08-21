@@ -2,9 +2,6 @@ package com.ps.util;
 
 import com.ps.ents.User;
 
-/**
- * Created by iuliana.cosmina on 2/23/16.
- */
 public class RecordBuilder {
 
     /**

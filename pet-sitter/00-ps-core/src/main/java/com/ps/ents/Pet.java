@@ -7,11 +7,9 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.text.SimpleDateFormat;
+import java.util.Objects;
+import java.util.Optional;
 
-/**
- * Created by iuliana.cosmina on 2/7/16.
- */
 @Entity
 @Table(name="P_PET")
 public class Pet extends AbstractEntity {
@@ -46,11 +44,6 @@ public class Pet extends AbstractEntity {
     @Column
     @Size(min = 10, max = 100)
     private String rfid;
-
-    //required by JPA
-    public Pet() {
-        super();
-    }
 
     public User getOwner() {
         return owner;
@@ -101,36 +94,33 @@ public class Pet extends AbstractEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
 
-        Pet pet = (Pet) o;
-
-        if (owner != null ? !owner.getId().equals(pet.owner.getId()) : pet.owner != null) return false;
-        if (petType != pet.petType) return false;
-        if (name != null ? !name.equals(pet.name) : pet.name != null) return false;
-        if (age != null ? !age.equals(pet.age) : pet.age != null) return false;
-        return rfid != null ? rfid.equals(pet.rfid) : pet.rfid == null;
-
+        Pet that = (Pet) other;
+        if (owner != null ? !Objects.equals(owner.getId(), that.owner.getId()) : that.owner != null) {
+            return false;
+        }
+        return Objects.equals(petType, that.petType)
+            && Objects.equals(name, that.name)
+            && Objects.equals(age, that.age)
+            && Objects.equals(rfid, that.rfid);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (owner != null ? owner.hashCode() : 0);
-        result = 31 * result + (petType != null ? petType.hashCode() : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (age != null ? age.hashCode() : 0);
-        result = 31 * result + (rfid != null ? rfid.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), owner, petType, name, age, rfid);
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return String.format("Pet[id='%,.2f', owner='%s', pet type='%s', pet name='%s', age='%,.2f']", id, owner == null ? ""
-                : owner.getId(), petType.toString(), name, age);
+        return String.format("Pet[id='%,d', owner='%s', pet type='%s', pet name='%s', age='%d']",
+                             id,
+                             Optional.of(owner).map(User::getId).map(Object::toString).orElse(""),
+                             petType,
+                             name,
+                             age);
     }
 }
