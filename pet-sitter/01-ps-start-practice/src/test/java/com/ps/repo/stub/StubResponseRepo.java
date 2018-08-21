@@ -10,9 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by iuliana.cosmina on 2/22/16.
- */
 public class StubResponseRepo extends StubAbstractRepo<Response> implements ResponseRepo {
 
     @Override
